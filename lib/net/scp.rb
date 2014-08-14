@@ -2,6 +2,7 @@ require 'stringio'
 require 'shellwords'
 
 require 'net/ssh'
+require 'net/ssh/multi'
 require 'net/scp/errors'
 require 'net/scp/upload'
 require 'net/scp/download'
@@ -250,7 +251,7 @@ module Net
     # object.
     def initialize(session)
       @session = session
-      self.logger = session.logger
+      # self.logger = session.logger
     end
 
     # Inititiate a synchronous (non-blocking) upload from +local+ to +remote+.
@@ -443,6 +444,18 @@ class Net::SSH::Connection::Session
   # Provides a convenient way to initialize a SCP session given a Net::SSH
   # session. Returns the Net::SCP instance, ready to use.
   def scp
+    @scp ||= Net::SCP.new(self)
+  end
+end
+
+class Net::SSH::Multi::SessionActions
+  # Provides a convenient way to initialize a SCP session given a Net::SSH::Multi
+  # session. Returns the Net::SCP instance, ready to use.
+  def scp
+    # TODO use channels otherwise things get weird with multiple ssh sessions
+    # this will only work with one ssh session
+    # open_channel do |channel|
+    # end
     @scp ||= Net::SCP.new(self)
   end
 end
